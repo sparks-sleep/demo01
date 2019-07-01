@@ -26,7 +26,6 @@ public class UserServiceImpl implements UserService{
     private UserDOMapper userDOMapper;
     @Resource
     private UserPasswordDOMapper userPasswordDOMapper;
-
     @Override
     public UserModel getUserById(Integer uid){
         //调用UserDOMapper获取到对应的用户dataobject
@@ -47,7 +46,7 @@ public class UserServiceImpl implements UserService{
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDO, userModel);
         if(userPasswordDO != null){
-            userModel.setEncrptPassword(userPasswordDO.getEncrptPassword());
+            userModel.setEncryptPassword(userPasswordDO.getEncryptPassword());
         }
         
         return userModel;
@@ -62,7 +61,7 @@ public class UserServiceImpl implements UserService{
         if(StringUtils.isEmpty(userModel.getUsername())
                 || userModel.getGender() == null
                 || userModel.getAge() == null
-                || StringUtils.isEmpty(userModel.getTelphone())){
+                || StringUtils.isEmpty(userModel.getTelephone())){
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
         //实现model-》dataobject方法
@@ -70,23 +69,37 @@ public class UserServiceImpl implements UserService{
         try{
             userDOMapper.insertSelective(userDO);
         }catch (DuplicateKeyException e){
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"DuplicateKeyException错误");
-        }catch (Exception ee){
-            ee.printStackTrace();
-            String name = ee.getClass().getName();
+            e.printStackTrace();
+            String name = e.getClass().getName();
             System.out.println(name);
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"SQLException手机号已重复注册");
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"手机号已重复注册");
         }
         int uid = userDO.getUid();
         if(uid > 0){
             UserPasswordDO userPasswordDO = convertPasswordFromModel(userModel);
             userPasswordDO.setUserId(userDO.getUid());
             userPasswordDOMapper.insertSelective(userPasswordDO);
-
         }else{
-            System.out.println("用户信息没有录入到数据库！");
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"用户信息没有录入到数据库！");
         }
+    }
 
+    @Override
+    public UserModel validateLogin(String telephone, String encryptPassword) throws BusinessException {
+        //通过用户的手机获取用户登录信息
+        UserDO userDO = userDOMapper.selectByTelephone(telephone);
+        if (userDO != null) {
+            UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getUid());
+            UserModel userModel = convertFromDataObject(userDO, userPasswordDO);
+            //密码匹配
+            boolean isPassword = StringUtils.equals(encryptPassword, userModel.getEncryptPassword());
+            if (!isPassword) {
+                throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
+            }
+            return userModel;
+        } else {
+            throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
+        }
     }
 
     private UserDO convertFromModel(UserModel userModel){
@@ -104,7 +117,7 @@ public class UserServiceImpl implements UserService{
         }
         UserPasswordDO userPasswordDO = new UserPasswordDO();
        // BeanUtils.copyProperties(userModel, userPasswordDO);
-        userPasswordDO.setEncrptPassword(userModel.getEncrptPassword());
+        userPasswordDO.setEncryptPassword(userModel.getEncryptPassword());
         return userPasswordDO;
     }
     

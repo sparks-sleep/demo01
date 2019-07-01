@@ -10,10 +10,10 @@ public class UserModel {
     private String username;
     private Byte gender;
     private Integer age;
-    private String telphone;
+    private String telephone;
     private String registerMode;
     private String thirdPartyId;
-    private String encrptPassword;
+    private String encryptPassword;
 
     public Integer getUid() {
         return uid;
@@ -47,12 +47,12 @@ public class UserModel {
         this.age = age;
     }
 
-    public String getTelphone() {
-        return telphone;
+    public String getTelephone() {
+        return telephone;
     }
 
-    public void setTelphone(String telphone) {
-        this.telphone = telphone;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     public String getRegisterMode() {
@@ -71,11 +71,11 @@ public class UserModel {
         this.thirdPartyId = thirdPartyId;
     }
 
-    public String getEncrptPassword() {
-        return encrptPassword;
+    public String getEncryptPassword() {
+        return encryptPassword;
     }
 
-    public void setEncrptPassword(String encrptPassword) {
-        this.encrptPassword = encrptPassword;
+    public void setEncryptPassword(String encryptPassword) {
+        this.encryptPassword = encryptPassword;
     }
 }

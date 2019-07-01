@@ -9,7 +9,7 @@ public class UserVO {
     private String username;
     private Byte gender;
     private Integer age;
-    private String telphone;
+    private String telephone;
 
     /**
      * @return the age
@@ -26,10 +26,10 @@ public class UserVO {
     }
 
     /**
-     * @return the telphone
+     * @return the telephone
      */
-    public String getTelphone() {
-        return telphone;
+    public String getTelephone() {
+        return telephone;
     }
 
     /**
@@ -61,10 +61,10 @@ public class UserVO {
     }
 
     /**
-     * @param telphone the telphone to set
+     * @param telephone the telephone to set
      */
-    public void setTelphone(String telphone) {
-        this.telphone = telphone;
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
     }
 
     /**
