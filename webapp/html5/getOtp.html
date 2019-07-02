@@ -16,7 +16,7 @@
             <label for="telephone"></label><input type="text" placeholder="手机号" name="telephone" id="telephone" />
         </div>
         <div class="form-actions">
-            <button class="btn blue" type="submit" id="getotp">
+            <button class="btn blue" type="submit" id="getOtp">
                 获取otp短信
             </button>
         </div>
@@ -33,7 +33,7 @@
             window.location.href = "login.html";
         });
         //绑定otp的click事件，用于向后端发送获取手机验证码的请求
-        $("#getotp").on("click", function () {
+        $("#getOtp").on("click", function () {
             var telephone = $("#telephone").val();
             if (telephone === "" || telephone === null) {
                 alert("手机号不能为空");
@@ -42,7 +42,7 @@
             $.ajax({
                 type: "POST",
                 conteonType: "application/x-www-form-urlencoded",
-                url: "http://127.0.0.1:8086/demo01/user/getotp",
+                url: "http://127.0.0.1:8086/demo01/user/getOtp",
                 data: {
                     "telephone": telephone
                 },
