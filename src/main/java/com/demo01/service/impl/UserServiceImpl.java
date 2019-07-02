@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserModel getUserById(Integer uid) {
-        //调用UserDOMapper获取到对应的用户dataobject
+        //调用UserDOMapper获取到对应的用户dataObject
         UserDO userDO = userDOMapper.selectByPrimaryKey(uid);
         if (userDO == null) {
             return null;
@@ -64,7 +64,7 @@ public class UserServiceImpl implements UserService {
                 || StringUtils.isEmpty(userModel.getTelephone())) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
-        //实现model-》dataobject方法
+        //实现model-》dataObject方法
         UserDO userDO = convertFromModel(userModel);
         try {
             userDOMapper.insertSelective(userDO);
