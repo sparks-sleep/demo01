@@ -17,70 +17,70 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 
 /**
- *
  * @author sparks.org.cn
  */
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl implements UserService {
     @Resource
     private UserDOMapper userDOMapper;
     @Resource
     private UserPasswordDOMapper userPasswordDOMapper;
+
     @Override
-    public UserModel getUserById(Integer uid){
+    public UserModel getUserById(Integer uid) {
         //调用UserDOMapper获取到对应的用户dataobject
         UserDO userDO = userDOMapper.selectByPrimaryKey(uid);
-        if (userDO == null){
+        if (userDO == null) {
             return null;
         }
         //通过用户ID获取用户加密密码信息
         UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getUid());
 
-        return convertFromDataObject(userDO,userPasswordDO);
+        return convertFromDataObject(userDO, userPasswordDO);
     }
 
-    private UserModel convertFromDataObject(UserDO userDO,UserPasswordDO userPasswordDO){
-        if(userDO == null){
+    private UserModel convertFromDataObject(UserDO userDO, UserPasswordDO userPasswordDO) {
+        if (userDO == null) {
             return null;
         }
         UserModel userModel = new UserModel();
         BeanUtils.copyProperties(userDO, userModel);
-        if(userPasswordDO != null){
+        if (userPasswordDO != null) {
             userModel.setEncryptPassword(userPasswordDO.getEncryptPassword());
         }
-        
+
         return userModel;
     }
 
     @Override
     @Transactional
-    public void register(UserModel userModel) throws BusinessException{
-        if(userModel == null){
+    public void register(UserModel userModel) throws BusinessException {
+        if (userModel == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
-        if(StringUtils.isEmpty(userModel.getUsername())
+        if (StringUtils.isEmpty(userModel.getUsername())
                 || userModel.getGender() == null
                 || userModel.getAge() == null
-                || StringUtils.isEmpty(userModel.getTelephone())){
+                || StringUtils.isEmpty(userModel.getTelephone())) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
         //实现model-》dataobject方法
         UserDO userDO = convertFromModel(userModel);
-        try{
+        try {
             userDOMapper.insertSelective(userDO);
-        }catch (DuplicateKeyException e){
+        } catch (DuplicateKeyException e) {
             e.printStackTrace();
             String name = e.getClass().getName();
             System.out.println(name);
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"手机号已重复注册");
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "手机号已重复注册");
         }
         int uid = userDO.getUid();
-        if(uid > 0){
+        if (uid > 0) {
             UserPasswordDO userPasswordDO = convertPasswordFromModel(userModel);
             userPasswordDO.setUserId(userDO.getUid());
             userPasswordDOMapper.insertSelective(userPasswordDO);
-        }else{
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,"用户信息没有录入到数据库！");
+        } else {
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR, "用户信息没有录入到数据库！");
         }
     }
 
@@ -88,22 +88,21 @@ public class UserServiceImpl implements UserService{
     public UserModel validateLogin(String telephone, String encryptPassword) throws BusinessException {
         //通过用户的手机获取用户登录信息
         UserDO userDO = userDOMapper.selectByTelephone(telephone);
-        if (userDO != null) {
-            UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getUid());
-            UserModel userModel = convertFromDataObject(userDO, userPasswordDO);
-            //密码匹配
-            boolean isPassword = StringUtils.equals(encryptPassword, userModel.getEncryptPassword());
-            if (!isPassword) {
-                throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
-            }
-            return userModel;
-        } else {
+        if (userDO == null) {
             throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
         }
+        UserPasswordDO userPasswordDO = userPasswordDOMapper.selectByUserId(userDO.getUid());
+        UserModel userModel = convertFromDataObject(userDO, userPasswordDO);
+        //密码匹配
+        boolean isPassword = StringUtils.equals(encryptPassword, userModel.getEncryptPassword());
+        if (!isPassword) {
+            throw new BusinessException(EmBusinessError.USER_LOGIN_FAIL);
+        }
+        return userModel;
     }
 
-    private UserDO convertFromModel(UserModel userModel){
-        if(userModel == null){
+    private UserDO convertFromModel(UserModel userModel) {
+        if (userModel == null) {
             return null;
         }
         UserDO userDO = new UserDO();
@@ -111,14 +110,14 @@ public class UserServiceImpl implements UserService{
         return userDO;
     }
 
-    private UserPasswordDO convertPasswordFromModel(UserModel userModel){
-        if(userModel == null){
+    private UserPasswordDO convertPasswordFromModel(UserModel userModel) {
+        if (userModel == null) {
             return null;
         }
         UserPasswordDO userPasswordDO = new UserPasswordDO();
-       // BeanUtils.copyProperties(userModel, userPasswordDO);
+        // BeanUtils.copyProperties(userModel, userPasswordDO);
         userPasswordDO.setEncryptPassword(userModel.getEncryptPassword());
         return userPasswordDO;
     }
-    
+
 }
