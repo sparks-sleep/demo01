@@ -8,6 +8,8 @@ import com.demo01.error.BusinessException;
 import com.demo01.error.EmBusinessError;
 import com.demo01.service.UserService;
 import com.demo01.service.model.UserModel;
+import com.demo01.validator.ValidationResult;
+import com.demo01.validator.ValidatorImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
@@ -25,6 +27,8 @@ public class UserServiceImpl implements UserService {
     private UserDOMapper userDOMapper;
     @Resource
     private UserPasswordDOMapper userPasswordDOMapper;
+    @Resource
+    private ValidatorImpl validatorImpl;
 
     @Override
     public UserModel getUserById(Integer uid) {
@@ -58,12 +62,17 @@ public class UserServiceImpl implements UserService {
         if (userModel == null) {
             throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
         }
-        if (StringUtils.isEmpty(userModel.getUsername())
-                || userModel.getGender() == null
-                || userModel.getAge() == null
-                || StringUtils.isEmpty(userModel.getTelephone())) {
-            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+//        if (StringUtils.isEmpty(userModel.getUsername())
+////                || userModel.getGender() == null
+////                || userModel.getAge() == null
+////                || StringUtils.isEmpty(userModel.getTelephone())) {
+////            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR);
+////        }
+        ValidationResult validationResult = validatorImpl.validate(userModel);
+        if(validationResult.isHasErrors()){
+            throw new BusinessException(EmBusinessError.PARAMETER_VALIDATION_ERROR,validationResult.getErrMsg());
         }
+
         //实现model-》dataObject方法
         UserDO userDO = convertFromModel(userModel);
         try {

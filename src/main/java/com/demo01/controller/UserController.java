@@ -105,6 +105,7 @@ public class UserController extends BaseController{
     @RequestMapping(value="/getOtp",method={RequestMethod.POST},consumes={CONTENT_TYPE_FORMED})
     @ResponseBody
     public CommonReturnType getOtp(@RequestParam(name="telephone") String telephone){
+
         //需要一定的规则生成OTP验证码
         Random random = new Random();
         int code = random.nextInt(99999);
